@@ -7,22 +7,38 @@ To write a printQueue C function of the given graph that is to be traversed in t
 
 
 ## Algorithm
-1. 
-2. 
-3. 
-4.  
-5.   
+1.Check if the queue is empty using isEmpty(q). If true, print "Queue is empty".
 
+2.If not empty, print "Queue contains ".
+
+3.Initialize a loop variable i to q->front.
+
+4.Use a for loop to iterate from q->front to q->rear, printing each item in q->items[i].
+
+5.End the loop and function after printing all items.
 ## Program:
 ```
 /*
 Program to traverse graph using BFS
-Developed by: 
-RegisterNumber:  
+Developed by:Dharani dharan K
+RegisterNumber:212223040036
 */
+void printQueue(struct queue* q) {
+  int i = q->front;
+ 
+  if (isEmpty(q)) {
+    printf("Queue is empty");
+  } else { 
+    printf("Queue contains ");
+    for (i = q->front; i < q->rear + 1; i++) {
+      printf("%d ", q->items[i]);
+    }
+   }
+}
 ```
 
 ## Output:
+![image](https://github.com/user-attachments/assets/f4696907-cc6d-4511-b582-caee292ac39e)
 
 
 
