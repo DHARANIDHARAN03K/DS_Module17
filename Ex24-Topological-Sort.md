@@ -1,102 +1,121 @@
 # Ex24 Topological Sort
 ## DATE:
 ## AIM:
-To compose the code to determine whether the topological ordering for the following graph is possible or not.
+To write a **Java program** to implement **Kahn's algorithm** for **Topological Sorting** to determine whether a topological ordering for the given **Directed Graph** is possible, which verifies the absence of cycles.
 
-![image](https://github.com/user-attachments/assets/c74a7111-9b59-475c-aad4-9baf23d50ec0)
-
-
-## Algorithm
-1. Initialize variables: 
-   - Declare `i`, `v`, `count`, `topo_order[MAX]`, and `indeg[MAX]`.<br>
-   
-2. Create the graph: 
-   - Call `create_graph()` to initialize the graph structure.<br>
-   
-3. Calculate indegree for each vertex: 
-   - For each vertex `i` from `0` to `n-1`:<br>
-     - Calculate `indeg[i]` using `indegree(i)`.<br>
-     - If `indeg[i]` is `0`, insert vertex `i` into the queue using `insert_queue(i)`.<br>
-   
-4. Perform topological sorting: 
-   - Initialize `count` to `0`.<br>
-   - While the queue is not empty and `count` is less than `n`:<br>
-     - Remove vertex `v` from the queue using `delete_queue()`.<br>
-     - Add vertex `v` to `topo_order` at index `++count`.<br>
-     - For each vertex `i` from `0` to `n-1`:<br>
-       - If there is an edge from `v` to `i` (i.e., `adj[v][i] == 1`):<br>
-         - Remove the edge by setting `adj[v][i]` to `0`.<br>
-         - Decrease `indeg[i]` by `1`.<br>
-         - If `indeg[i]` becomes `0`, insert vertex `i` into the queue.<br>
-   
-5. Check for cycles: 
-   - If `count` is less than `n`, print "No topological ordering possible, graph contains cycle" and exit the program.<br>
-   
-6. Print the topological order: 
-   - Print "Vertices in topological order are:".<br>
-   - For each index `i` from `1` to `count`, print `topo_order[i]`.<br>
-   
-7. End the program: 
-   - Return `0` to indicate successful completion.<br> 
+## Algorithm:
+1.  Start.
+2.  Define a **`Graph`** class using an **Adjacency List** and an array `indegree` to store the in-degree of each vertex.
+3.  Implement the **`calculateInDegree()`** method: Traverse the adjacency list and increment the `indegree` count for every destination vertex of an edge.
+4.  Define the **`topologicalSort()`** method (Kahn's Algorithm):
+    a. Initialize a **Queue** and add all vertices with an `indegree` of **0** (source nodes).
+    b. Initialize a `count` of visited vertices to 0 and an `ArrayList` to store the topological order.
+    c. While the queue is **not empty**: 
+        i. **Dequeue** a vertex $u$.
+        ii. Add $u$ to the topological order list and increment `count`.
+        iii. For every neighbor $v$ of $u$:
+            - Decrement the `indegree` of $v$ by 1.
+            - If $indegree[v]$ becomes **0**, **enqueue** $v$.
+5.  **Check for cycles**: After the loop, if the final `count` is **less than the total number of vertices ($V$)**, the graph contains a cycle, and no complete topological ordering is possible.
+6.  Display the result: either the topological order or the cycle warning.
+7.  End.
 
 ## Program:
-```
 /*
 Program to determine whether the topological ordering for the following graph is possible or not
 Developed by: Dharani dharan K
 RegisterNumber: 212223040036
 */
-int main()
-{
-        int i,v,count,topo_order[MAX],indeg[MAX];
 
-        create_graph();
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.ArrayList;
+import java.util.Arrays;
 
-        /*Find the indegree of each vertex*/
-        for(i=0;i<n;i++)
-        {
-                indeg[i] = indegree(i);
-                if( indeg[i] == 0 )
-                        insert_queue(i);
+public class TopologicalSort {
+    private int V; // Number of vertices
+    private LinkedList<Integer> adj[]; // Adjacency Lists
+    
+    public TopologicalSort(int v) {
+        V = v;
+        adj = new LinkedList[v];
+        for (int i = 0; i < v; ++i)
+            adj[i] = new LinkedList<>();
+    }
+
+    // Function to add a directed edge u -> v
+    public void addEdge(int u, int v) {
+        adj[u].add(v);
+    }
+
+    // Function to perform Topological Sort using Kahn's Algorithm
+    public void topologicalSort() {
+        int indegree[] = new int[V];
+        
+        // 1. Calculate indegree for all vertices
+        for (int u = 0; u < V; u++) {
+            for (int v : adj[u]) {
+                indegree[v]++;
+            }
         }
 
-        count = 0;
-
-        while(  !isEmpty_queue( ) && count < n )
-        {
-                v = delete_queue();
-        topo_order[++count] = v; /*Add vertex v to topo_order array*/
-                /*Delete all edges going from vertex v */
-                for(i=0; i<n; i++)
-                {
-                        if(adj[v][i] == 1)
-                        {
-                                adj[v][i] = 0;
-                                indeg[i] = indeg[i]-1;
-                                if(indeg[i] == 0)
-                                        insert_queue(i);
-                        }
-                }
+        // 2. Initialize Queue and add all vertices with in-degree 0
+        Queue<Integer> q = new LinkedList<>();
+        for (int i = 0; i < V; i++) {
+            if (indegree[i] == 0)
+                q.add(i);
         }
 
-        if( count < n )
-        {
-                printf("No topological ordering possible, graph contains cycle\n");
-                exit(1);
-        }
-        printf("Vertices in topological order are :\n");
-        for(i=1; i<=count; i++)
-                printf( "%d ",topo_order[i] );
-        printf("\n");
+        // 3. Process vertices
+        int count = 0;
+        ArrayList<Integer> topologicalOrder = new ArrayList<>();
 
-        return 0;
-}/*End of main()*/
-```
+        while (!q.isEmpty()) {
+            int u = q.poll(); // Dequeue a vertex with in-degree 0
+            topologicalOrder.add(u);
+            count++;
+
+            // For all neighbors v of u
+            for (int v : adj[u]) {
+                // Decrement in-degree of v
+                indegree[v]--;
+
+                // If in-degree becomes 0, enqueue it
+                if (indegree[v] == 0)
+                    q.add(v);
+            }
+        }
+
+        // 4. Check for cycles
+        if (count < V) {
+            System.out.println("No topological ordering possible, graph contains cycle");
+        } else {
+            System.out.println("Topological ordering is possible. Vertices in topological order are:");
+            System.out.println(topologicalOrder);
+        }
+    }
+
+    public static void main(String args[]) {
+        // Construct the sample graph from the image (assuming vertices 0 to 4)
+        TopologicalSort graph = new TopologicalSort(5);
+        
+        // Edges from the graph image:
+        // 0 -> 1, 0 -> 2
+        // 1 -> 3
+        // 2 -> 3, 2 -> 4
+        graph.addEdge(0, 1);
+        graph.addEdge(0, 2);
+        graph.addEdge(1, 3);
+        graph.addEdge(2, 3);
+        graph.addEdge(2, 4);
+
+        System.out.println("--- Topological Sort (Kahn's Algorithm) ---");
+        graph.topologicalSort();
+    }
+}
 
 ## Output:
 
-![image](https://github.com/user-attachments/assets/087b9072-74cc-44ad-95a0-4de7a19fada5)
-
-
+![image](https://github.com/user-attachments/assets/23cf1270-fdba-4c49-ae95-3c2c5f339d3a)
 ## Result:
-Thus, the C program for determining whether the topological ordering for the following graph is possible or not, is implemented successfully.
+Thus, the **Java program** to determine whether the topological ordering for the given graph is possible or not, using Kahn's algorithm, is implemented successfully.
